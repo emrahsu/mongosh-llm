@@ -8,6 +8,7 @@ import {
   type QueryMode,
 } from '@emrahsu/mongosh-llm-shared';
 import { executeToolQuery } from '../mongosh/client.js';
+import { printToolUse, printToolResult } from '../display.js';
 import { QueryCache } from '../cache.js';
 
 /**
@@ -67,7 +68,15 @@ export class ToolUseOrchestrator {
     const results: Anthropic.ToolResultBlockParam[] = [];
     for (const toolUse of toolUseBlocks) {
       const query = (toolUse.input as { query?: string }).query ?? '';
-      const result = await this.runToolQuery(query);
+      const cachedResult = this.cache.get(query);
+      printToolUse(query, Boolean(cachedResult));
+
+      const result = cachedResult ?? (await executeToolQuery(this.mongodbUri, query));
+      if (!cachedResult) {
+        this.cache.set(query, result);
+      }
+      printToolResult(result);
+
       results.push({
         type: 'tool_result',
         tool_use_id: toolUse.id,
@@ -76,16 +85,6 @@ export class ToolUseOrchestrator {
       });
     }
     return results;
-  }
-
-  private async runToolQuery(query: string) {
-    const cached = this.cache.get(query);
-    if (cached) {
-      return cached;
-    }
-    const result = await executeToolQuery(this.mongodbUri, query);
-    this.cache.set(query, result);
-    return result;
   }
 }
 

@@ -38,16 +38,14 @@ function isCommandNotFoundError(error: unknown): boolean {
   return Boolean(error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT');
 }
 
-/** Fetches collection names and one sample document per collection as a schema summary. */
+/**
+ * Fetches just collection names as a lightweight schema hint. Deliberately does NOT eagerly dump
+ * full sample documents here - that used to bloat the system prompt to 40K+ characters and gave
+ * smaller local models "example data" to pattern-match/hallucinate from instead of actually
+ * calling run_query for real data. Field-level schema discovery happens on demand via the tool.
+ */
 export async function fetchSchema(mongodbUri: string): Promise<string> {
-  const code = `
-    const names = db.getCollectionNames();
-    const summary = names.map((name) => ({
-      collection: name,
-      sampleDocument: db.getCollection(name).findOne(),
-    }));
-    JSON.stringify(summary, null, 2);
-  `;
+  const code = 'JSON.stringify(db.getCollectionNames(), null, 2);';
   return runEval(mongodbUri, code);
 }
 

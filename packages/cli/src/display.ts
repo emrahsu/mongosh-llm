@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import type { QueryMode } from '@emrahsu/mongosh-llm-shared';
+import type { QueryMode, ToolExecutionResult } from '@emrahsu/mongosh-llm-shared';
 
 const PAGE_SIZE_LINES = 100;
 const BOX_WIDTH = 54;
@@ -37,8 +37,43 @@ export function printBanner(mode: string, queryMode: QueryMode): void {
   console.log(chalk.gray(`└${'─'.repeat(BOX_WIDTH + 2)}┘`));
 }
 
-export function printToolUse(query: string): void {
-  console.log(chalk.gray(`  [tool] inspecting: ${query}`));
+/** Shows a tool-use query before it runs, dimmed so it doesn't compete with the actual answer. */
+export function printToolUse(query: string, cached: boolean): void {
+  const cacheIndicator = cached ? ' [cached]' : '';
+  console.log(chalk.gray(`  🔍 ${query}${cacheIndicator}`));
+}
+
+/** Shows a one-line summary of what a tool call returned, mirroring the query's dimmed style. */
+export function printToolResult(result: ToolExecutionResult): void {
+  if (!result.success) {
+    const errorMessage = (result.error ?? 'Unknown error').slice(0, 60);
+    console.log(chalk.gray(`  ✗ Error: ${errorMessage}`));
+    return;
+  }
+
+  const truncationWarning = result.truncated ? chalk.yellow(' ⚠ Truncated to limit') : '';
+  console.log(chalk.gray(`  ${summarizeToolData(result.data)}`) + truncationWarning);
+}
+
+function summarizeToolData(data: unknown): string {
+  if (Array.isArray(data)) {
+    return `✓ Returned ${data.length} item${data.length === 1 ? '' : 's'}`;
+  }
+  if (data !== null && typeof data === 'object') {
+    const fieldCount = Object.keys(data).length;
+    return `✓ Returned object with ${fieldCount} field${fieldCount === 1 ? '' : 's'}`;
+  }
+  if (typeof data === 'string') {
+    const trimmed = data.trim();
+    if (!trimmed) {
+      return '✓ Completed';
+    }
+    return `✓ ${data.length > 50 ? data.slice(0, 50) : data}`;
+  }
+  if (typeof data === 'number' || typeof data === 'boolean') {
+    return `✓ ${data}`;
+  }
+  return '✓ null';
 }
 
 export function printError(message: string): void {
