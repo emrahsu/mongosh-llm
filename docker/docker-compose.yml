@@ -1,0 +1,32 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: mongosh-llm-mongodb
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  seed:
+    image: mongo:7
+    container_name: mongosh-llm-seed
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./seed:/seed:ro
+      - seed-status:/seed-status
+    environment:
+      MONGO_URI: mongodb://mongodb:27017
+    entrypoint: ['bash', '/seed/seed-sample-data.sh']
+
+volumes:
+  mongodb-data:
+  seed-status:

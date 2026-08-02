@@ -1,0 +1,15 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Environment files - never commit real credentials
+.env
+.env.local
+!.env.example
+
+*.log
+.DS_Store
+
+# Docker volumes are managed by Docker, not git
+docker/seed/*.archive
