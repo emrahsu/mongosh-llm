@@ -18,3 +18,9 @@ export const DEFAULT_TEMPERATURE = 0.1;
 
 /** Override via the ANTHROPIC_MODEL env var if Anthropic renames/retires this model id. */
 export const DEFAULT_ANTHROPIC_MODEL = 'claude-sonnet-4-5-20250929';
+
+/** Ollama's default local server address. */
+export const DEFAULT_OLLAMA_BASE_URL = 'http://localhost:11434';
+
+/** One of Ollama's originally-documented tool-calling-capable models. */
+export const DEFAULT_OLLAMA_MODEL = 'mistral-nemo';

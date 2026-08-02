@@ -3,11 +3,17 @@ import type Anthropic from '@anthropic-ai/sdk';
 /** "safe" rejects write operations; "unsafe" allows them (with CLI confirmation). */
 export type QueryMode = 'safe' | 'unsafe';
 
+/** Explicit provider selector; if unset, config.ts falls back to inferring from which vars are set. */
+export type LlmProvider = 'anthropic' | 'backend' | 'ollama';
+
 export interface AppConfig {
   mongodbUri: string;
+  llmProvider?: LlmProvider;
   anthropicApiKey?: string;
   anthropicModel: string;
   backendUrl?: string;
+  ollamaBaseUrl?: string;
+  ollamaModel: string;
   queryMode: QueryMode;
 }
 

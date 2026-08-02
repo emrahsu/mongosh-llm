@@ -1,8 +1,7 @@
 import { createInterface } from 'node:readline/promises';
 import chalk from 'chalk';
-import type { AppConfig, LlmClient } from '@emrahsu/mongosh-llm-shared';
-import { AnthropicDirectClient } from './llm/anthropic-direct-client.js';
-import { BackendLlmClient } from './llm/backend-client.js';
+import type { AppConfig } from '@emrahsu/mongosh-llm-shared';
+import { createLlmClient } from './llm/factory.js';
 import { ToolUseOrchestrator } from './llm/tool-use-orchestrator.js';
 import { ConversationHistory } from './conversation.js';
 import { executeCommand, fetchSchema, MongoshNotFoundError } from './mongosh/client.js';
@@ -10,12 +9,17 @@ import { validateQuery } from './validation.js';
 import { confirmWriteOperation } from './prompt.js';
 import { printBanner, printError, printInfo, printPaginated } from './display.js';
 
-/** Direct mode wins if both an API key and a backend URL happen to be configured. */
-function createLlmClient(config: AppConfig): LlmClient {
-  if (config.anthropicApiKey) {
-    return new AnthropicDirectClient(config.anthropicApiKey, config.anthropicModel);
+function describeProvider(config: AppConfig): string {
+  if (config.llmProvider) {
+    return config.llmProvider;
   }
-  return new BackendLlmClient(config.backendUrl as string);
+  if (config.anthropicApiKey) {
+    return 'anthropic';
+  }
+  if (config.backendUrl) {
+    return 'backend';
+  }
+  return 'ollama';
 }
 
 type Ask = (prompt: string) => Promise<string>;
@@ -36,7 +40,7 @@ export async function startRepl(config: AppConfig): Promise<void> {
   const ask: Ask = (prompt) => rl.question(prompt);
 
   printBanner();
-  const mode = config.anthropicApiKey ? 'direct' : 'backend';
+  const mode = describeProvider(config);
   printInfo(
     `Mode: ${config.queryMode} (${mode}). Type "exit" to quit, "--clear" to reset conversation.\n`,
   );

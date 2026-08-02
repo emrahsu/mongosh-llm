@@ -2,18 +2,28 @@ import { z } from 'zod';
 
 export const queryModeSchema = z.enum(['safe', 'unsafe']);
 
-/** Validated at process startup; refine() enforces that a query mode is reachable somehow. */
+export const llmProviderSchema = z.enum(['anthropic', 'backend', 'ollama']);
+
+/**
+ * Validated at process startup. refine() enforces that at least one provider is actually
+ * reachable: an Anthropic key, a backend URL, or a local Ollama URL.
+ */
 export const appConfigSchema = z
   .object({
     mongodbUri: z.string().min(1, 'MONGODB_URI is required'),
+    llmProvider: llmProviderSchema.optional(),
     anthropicApiKey: z.string().optional(),
     anthropicModel: z.string().min(1),
     backendUrl: z.string().url().optional(),
+    ollamaBaseUrl: z.string().url().optional(),
+    ollamaModel: z.string().min(1),
     queryMode: queryModeSchema.default('safe'),
   })
-  .refine((config) => Boolean(config.anthropicApiKey) || Boolean(config.backendUrl), {
-    message: 'Either ANTHROPIC_API_KEY or BACKEND_URL must be set',
-  });
+  .refine(
+    (config) =>
+      Boolean(config.anthropicApiKey) || Boolean(config.backendUrl) || Boolean(config.ollamaBaseUrl),
+    { message: 'One of ANTHROPIC_API_KEY, BACKEND_URL, or OLLAMA_BASE_URL must be set' },
+  );
 
 export const toolExecutionResultSchema = z.object({
   success: z.boolean(),

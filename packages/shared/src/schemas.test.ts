@@ -5,9 +5,10 @@ describe('appConfigSchema', () => {
   const base = {
     mongodbUri: 'mongodb://localhost:27017/test',
     anthropicModel: 'claude-test',
+    ollamaModel: 'mistral-nemo',
   };
 
-  it('rejects config with neither an API key nor a backend URL', () => {
+  it('rejects config with neither an API key, backend URL, nor Ollama URL', () => {
     expect(appConfigSchema.safeParse(base).success).toBe(false);
   });
 

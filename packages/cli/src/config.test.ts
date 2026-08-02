@@ -1,7 +1,16 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { loadConfig } from './config.js';
 
-const ENV_KEYS = ['MONGODB_URI', 'ANTHROPIC_API_KEY', 'ANTHROPIC_MODEL', 'BACKEND_URL', 'QUERY_MODE'] as const;
+const ENV_KEYS = [
+  'MONGODB_URI',
+  'LLM_PROVIDER',
+  'ANTHROPIC_API_KEY',
+  'ANTHROPIC_MODEL',
+  'BACKEND_URL',
+  'OLLAMA_BASE_URL',
+  'OLLAMA_MODEL',
+  'QUERY_MODE',
+] as const;
 let savedEnv: Record<string, string | undefined>;
 
 beforeEach(() => {
@@ -22,8 +31,8 @@ afterEach(() => {
 });
 
 describe('loadConfig', () => {
-  it('throws when neither ANTHROPIC_API_KEY nor BACKEND_URL is set', () => {
-    expect(() => loadConfig()).toThrow(/ANTHROPIC_API_KEY or BACKEND_URL/);
+  it('throws when no LLM provider is configured', () => {
+    expect(() => loadConfig()).toThrow(/ANTHROPIC_API_KEY, BACKEND_URL, or OLLAMA_BASE_URL/);
   });
 
   it('defaults to safe mode and a local MongoDB URI', () => {
@@ -45,5 +54,23 @@ describe('loadConfig', () => {
     const config = loadConfig();
     expect(config.backendUrl).toBe('http://localhost:3000');
     expect(config.anthropicApiKey).toBeUndefined();
+  });
+
+  it('does not infer Ollama mode just because OLLAMA_MODEL is set without a base URL', () => {
+    process.env.OLLAMA_MODEL = 'mistral-nemo';
+    expect(() => loadConfig()).toThrow();
+  });
+
+  it('defaults OLLAMA_BASE_URL to localhost when LLM_PROVIDER=ollama is explicit', () => {
+    process.env.LLM_PROVIDER = 'ollama';
+    const config = loadConfig();
+    expect(config.ollamaBaseUrl).toBe('http://localhost:11434');
+  });
+
+  it('accepts an explicit OLLAMA_BASE_URL directly', () => {
+    process.env.OLLAMA_BASE_URL = 'http://localhost:11434';
+    const config = loadConfig();
+    expect(config.ollamaBaseUrl).toBe('http://localhost:11434');
+    expect(config.ollamaModel).toBe('mistral-nemo');
   });
 });
