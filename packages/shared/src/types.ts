@@ -33,3 +33,21 @@ export interface LlmResponse {
   content: string;
   toolCalls?: Anthropic.ToolUseBlock[];
 }
+
+/**
+ * A single stateless turn: send the already-built system prompt + message history, get back
+ * Claude's raw content blocks. Both the direct-Anthropic client and the backend proxy implement
+ * this same shape, so the CLI's tool-use loop works identically in either mode.
+ */
+export interface LlmTurnRequest {
+  system: string;
+  messages: ConversationMessage[];
+}
+
+export interface LlmTurnResult {
+  content: Anthropic.ContentBlock[];
+}
+
+export interface LlmClient {
+  sendTurn(request: LlmTurnRequest): Promise<LlmTurnResult>;
+}

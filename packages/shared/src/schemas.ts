@@ -22,10 +22,18 @@ export const toolExecutionResultSchema = z.object({
   error: z.string().optional(),
 });
 
-/** Shape of the request the CLI sends to the optional backend's /query endpoint. */
+/**
+ * Shape of the request the CLI sends to the optional backend's /query endpoint. The backend is a
+ * stateless single-turn Claude proxy: the CLI already built the full system prompt (schema and
+ * safe/unsafe rules baked in) and just needs the backend to hold the Anthropic API key and make
+ * the call. Message content blocks are passed through as-is and validated by the Anthropic SDK.
+ */
 export const backendQueryRequestSchema = z.object({
-  prompt: z.string(),
-  history: z.array(z.unknown()),
-  schema: z.string(),
-  queryMode: queryModeSchema.default('safe'),
+  system: z.string().min(1),
+  messages: z.array(z.unknown()),
 });
+
+export const backendQueryResponseSchema = z.object({
+  content: z.array(z.unknown()),
+});
+

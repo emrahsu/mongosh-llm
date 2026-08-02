@@ -1,29 +1,26 @@
-import Anthropic from '@anthropic-ai/sdk';
+import type Anthropic from '@anthropic-ai/sdk';
 import {
-  RUN_QUERY_TOOL,
   buildSystemPrompt,
-  DEFAULT_MAX_TOKENS,
-  DEFAULT_TEMPERATURE,
   MAX_TOOL_CALLS_PER_QUERY,
   type ConversationMessage,
+  type LlmClient,
   type LlmResponse,
   type QueryMode,
 } from '@emrahsu/mongosh-llm-shared';
 import { executeToolQuery } from '../mongosh/client.js';
 import { QueryCache } from '../cache.js';
 
-/** Talks to Claude directly, resolving the run_query tool-use loop before returning a final answer. */
-export class AnthropicLlmService {
-  private readonly client: Anthropic;
+/**
+ * Drives the run_query tool-use loop against any LlmClient (direct Anthropic or backend proxy).
+ * Tool execution always happens here, client-side, since only the CLI has mongosh access.
+ */
+export class ToolUseOrchestrator {
   private readonly cache = new QueryCache();
 
   constructor(
-    apiKey: string,
-    private readonly model: string,
+    private readonly llmClient: LlmClient,
     private readonly mongodbUri: string,
-  ) {
-    this.client = new Anthropic({ apiKey });
-  }
+  ) {}
 
   async ask(
     history: ConversationMessage[],
@@ -38,21 +35,14 @@ export class AnthropicLlmService {
     }
 
     for (let toolCallCount = 0; toolCallCount < MAX_TOOL_CALLS_PER_QUERY; toolCallCount++) {
-      const response = await this.client.messages.create({
-        model: this.model,
-        max_tokens: DEFAULT_MAX_TOKENS,
-        temperature: DEFAULT_TEMPERATURE,
-        system,
-        messages,
-        tools: [RUN_QUERY_TOOL],
-      });
+      const { content } = await this.llmClient.sendTurn({ system, messages });
 
-      const toolUseBlocks = response.content.filter(
+      const toolUseBlocks = content.filter(
         (block): block is Anthropic.ToolUseBlock => block.type === 'tool_use',
       );
 
       if (toolUseBlocks.length === 0) {
-        const text = response.content
+        const text = content
           .filter((block): block is Anthropic.TextBlock => block.type === 'text')
           .map((block) => block.text)
           .join('\n')
@@ -60,7 +50,7 @@ export class AnthropicLlmService {
         return { type: classifyResponse(text), content: text };
       }
 
-      messages.push({ role: 'assistant', content: response.content });
+      messages.push({ role: 'assistant', content });
       messages.push({ role: 'user', content: await this.resolveToolCalls(toolUseBlocks) });
     }
 
