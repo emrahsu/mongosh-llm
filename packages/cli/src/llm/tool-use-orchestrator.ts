@@ -7,7 +7,7 @@ import {
   type LlmResponse,
   type QueryMode,
 } from '@emrahsu/mongosh-llm-shared';
-import { executeToolQuery } from '../mongosh/client.js';
+import { executeToolQuery, parseDatabaseName } from '../mongosh/client.js';
 import { printToolUse, printToolResult } from '../display.js';
 import { QueryCache } from '../cache.js';
 
@@ -17,11 +17,14 @@ import { QueryCache } from '../cache.js';
  */
 export class ToolUseOrchestrator {
   private readonly cache = new QueryCache();
+  private readonly currentDatabase?: string;
 
   constructor(
     private readonly llmClient: LlmClient,
     private readonly mongodbUri: string,
-  ) {}
+  ) {
+    this.currentDatabase = parseDatabaseName(mongodbUri);
+  }
 
   async ask(
     history: ConversationMessage[],
@@ -29,7 +32,7 @@ export class ToolUseOrchestrator {
     schema: string,
     queryMode: QueryMode,
   ): Promise<LlmResponse> {
-    const system = buildSystemPrompt({ schema, queryMode });
+    const system = buildSystemPrompt({ schema, currentDatabase: this.currentDatabase, queryMode });
     const messages: ConversationMessage[] = [...history];
     if (userPrompt.trim()) {
       messages.push({ role: 'user', content: userPrompt });

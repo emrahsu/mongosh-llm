@@ -5,6 +5,7 @@ import type { LlmClient, LlmTurnResult } from '@emrahsu/mongosh-llm-shared';
 const executeToolQueryMock = vi.fn();
 vi.mock('../mongosh/client.js', () => ({
   executeToolQuery: (...args: unknown[]) => executeToolQueryMock(...args),
+  parseDatabaseName: (uri: string) => new URL(uri).pathname.replace(/^\//, '') || undefined,
 }));
 
 const { ToolUseOrchestrator } = await import('./tool-use-orchestrator.js');

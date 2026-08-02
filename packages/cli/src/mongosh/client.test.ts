@@ -5,7 +5,8 @@ vi.mock('node:child_process', () => ({
   execFile: (...args: unknown[]) => execFileMock(...args),
 }));
 
-const { fetchSchema, executeToolQuery, executeCommand, MongoshNotFoundError } = await import('./client.js');
+const { fetchSchema, executeToolQuery, executeCommand, parseDatabaseName, MongoshNotFoundError } =
+  await import('./client.js');
 
 type ExecCallback = (error: unknown, result?: { stdout: string; stderr: string }) => void;
 
@@ -61,6 +62,24 @@ describe('executeToolQuery', () => {
     const [, evalArgs] = execFileMock.mock.calls[0] as [string, string[]];
     const query = evalArgs[evalArgs.indexOf('--eval') + 1];
     expect(query).toBe('db.users.find().limit(5)');
+  });
+});
+
+describe('parseDatabaseName', () => {
+  it('extracts the database name from the connection string path', () => {
+    expect(parseDatabaseName('mongodb://localhost:27017/sample_mflix')).toBe('sample_mflix');
+  });
+
+  it('extracts the database name from an srv connection string with credentials and query params', () => {
+    expect(parseDatabaseName('mongodb+srv://user:pass@cluster.net/mydb?retryWrites=true')).toBe('mydb');
+  });
+
+  it('returns undefined when no database is specified', () => {
+    expect(parseDatabaseName('mongodb://localhost:27017')).toBeUndefined();
+  });
+
+  it('returns undefined for an unparseable connection string', () => {
+    expect(parseDatabaseName('not-a-valid-uri')).toBeUndefined();
   });
 });
 

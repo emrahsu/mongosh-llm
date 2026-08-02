@@ -4,17 +4,19 @@ import type { QueryMode } from './types.js';
 export interface SystemPromptOptions {
   /** Newline-delimited collection/database schema summary, if already known. */
   schema?: string;
+  /** The database name mongosh is actually connected to (parsed from MONGODB_URI), if known. */
+  currentDatabase?: string;
   queryMode: QueryMode;
 }
 
 /** Builds the Claude system prompt: persona, safety rules, tool-use workflow, and examples. */
-export function buildSystemPrompt({ schema, queryMode }: SystemPromptOptions): string {
+export function buildSystemPrompt({ schema, currentDatabase, queryMode }: SystemPromptOptions): string {
   const now = new Date();
   const currentDateStr = now.toUTCString();
   const currentIso = now.toISOString();
 
   let prompt = [
-    buildPersonaSection(currentDateStr, currentIso),
+    buildPersonaSection(currentDateStr, currentIso, currentDatabase),
     buildSafetySection(queryMode),
     buildToolUseSection(),
     buildQueryStyleSection(),
@@ -31,12 +33,17 @@ export function buildSystemPrompt({ schema, queryMode }: SystemPromptOptions): s
   return prompt;
 }
 
-function buildPersonaSection(currentDateStr: string, currentIso: string): string {
+function buildPersonaSection(currentDateStr: string, currentIso: string, currentDatabase?: string): string {
+  const connectionLine = currentDatabase
+    ? `- Connected database: \`${currentDatabase}\` - this is already the default database, so db.CollectionName refers to it directly. Only use db.getSiblingDB('OtherName') if the user explicitly asks about a DIFFERENT, named database.`
+    : '- No specific database is selected on this connection.';
+
   return `You are a friendly MongoDB database assistant and software engineering mentor. You help developers work with their databases and answer technical questions.
 
 ## Current Context
 - Current Date/Time: ${currentDateStr}
 - ISO Format: ${currentIso}
+${connectionLine}
 - When users say "today", "this week", "last month", calculate dates relative to this timestamp
 - For date queries, use ISODate() format: ISODate("${currentIso}")
 
@@ -134,15 +141,19 @@ function buildQueryStyleSection(): string {
 MongoDB command rules:
 1. Return ONLY the MongoDB command, nothing else - no explanations, no markdown code fences
 2. Use proper mongosh syntax
-3. If a database name is known, use db.getSiblingDB('DatabaseName') before the collection call
-4. Always wrap results: JSON.stringify(result, null, 2)`;
+3. db.CollectionName already refers to the connected database - do NOT use getSiblingDB() unless the user explicitly names a DIFFERENT database
+4. To list ALL databases on the server (not collections within one database), use db.getMongo().getDBNames() - never use getSiblingDB() or getCollectionNames() for this
+5. Always wrap results: JSON.stringify(result, null, 2)`;
 }
 
 function buildExamplesSection(currentIso: string): string {
   return `## Examples
 
 User: "Show all collections"
-Response: JSON.stringify(db.getSiblingDB('MyDatabase').getCollectionNames(), null, 2)
+Response: JSON.stringify(db.getCollectionNames(), null, 2)
+
+User: "List all databases" / "what databases do I have"
+Response: JSON.stringify(db.getMongo().getDBNames(), null, 2)
 
 User: "Show me some users"
 Response: JSON.stringify(db.Users.find().limit(10).toArray(), null, 2)

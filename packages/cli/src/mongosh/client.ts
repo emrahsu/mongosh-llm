@@ -38,6 +38,17 @@ function isCommandNotFoundError(error: unknown): boolean {
   return Boolean(error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT');
 }
 
+/** Extracts the database name from a MongoDB connection string's path, e.g. "sample_mflix". */
+export function parseDatabaseName(mongodbUri: string): string | undefined {
+  try {
+    const path = new URL(mongodbUri).pathname.replace(/^\//, '');
+    return path || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+
 /**
  * Fetches just collection names as a lightweight schema hint. Deliberately does NOT eagerly dump
  * full sample documents here - that used to bloat the system prompt to 40K+ characters and gave
