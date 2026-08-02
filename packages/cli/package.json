@@ -1,6 +1,13 @@
 {
   "name": "@emrahsu/mongosh-llm-cli",
   "version": "0.1.0",
+  "description": "Query MongoDB in plain English - CLI powered by Claude, a self-hosted backend, or a local Ollama model",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emrahsu/mongosh-llm.git",
+    "directory": "packages/cli"
+  },
   "type": "module",
   "bin": {
     "mongosh-llm": "./dist/index.js"

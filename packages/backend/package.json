@@ -1,7 +1,13 @@
 {
   "name": "@emrahsu/mongosh-llm-backend",
   "version": "0.1.0",
-  "private": true,
+  "description": "Optional self-hostable backend for mongosh-llm - a stateless single-turn Claude proxy",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emrahsu/mongosh-llm.git",
+    "directory": "packages/backend"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "files": ["dist"],

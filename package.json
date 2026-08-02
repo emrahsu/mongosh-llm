@@ -6,6 +6,14 @@
   "description": "Natural language MongoDB queries powered by Claude - open source CLI with an optional self-hostable backend",
   "license": "MIT",
   "author": "Emrah Su <https://github.com/emrahsu>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emrahsu/mongosh-llm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/emrahsu/mongosh-llm/issues"
+  },
+  "homepage": "https://github.com/emrahsu/mongosh-llm#readme",
   "engines": {
     "node": ">=22.0.0"
   },
