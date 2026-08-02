@@ -16,7 +16,6 @@
   "dependencies": {
     "@emrahsu/mongosh-llm-shared": "^0.1.0",
     "@anthropic-ai/sdk": "^0.32.1",
-    "mongodb": "^6.12.0",
     "commander": "^13.0.0",
     "chalk": "^5.4.1",
     "dotenv": "^16.4.7",
