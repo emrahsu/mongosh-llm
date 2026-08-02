@@ -1,11 +1,40 @@
 import chalk from 'chalk';
+import type { QueryMode } from '@emrahsu/mongosh-llm-shared';
 
 const PAGE_SIZE_LINES = 100;
+const BOX_WIDTH = 54;
+const MONGO_GREEN = chalk.hex('#00ED64');
 
-export function printBanner(): void {
+interface Segment {
+  text: string;
+  color?: (s: string) => string;
+}
+
+/** Renders one boxed line from plain-text segments, padding based on visible (uncolored) length. */
+function boxLine(segments: Segment[]): string {
+  const plainLength = segments.reduce((sum, seg) => sum + seg.text.length, 0);
+  const padding = ' '.repeat(Math.max(0, BOX_WIDTH - plainLength));
+  const rendered = segments.map((seg) => (seg.color ? seg.color(seg.text) : seg.text)).join('');
+  return `${chalk.gray('│')} ${rendered}${padding} ${chalk.gray('│')}`;
+}
+
+export function printBanner(mode: string, queryMode: QueryMode): void {
+  const safetyColor = queryMode === 'safe' ? chalk.green : chalk.yellow;
+
+  console.log(chalk.gray(`┌${'─'.repeat(BOX_WIDTH + 2)}┐`));
+  console.log(boxLine([{ text: '🍃 ' }, { text: 'mongosh-llm', color: (s) => MONGO_GREEN.bold(s) }]));
+  console.log(boxLine([{ text: '   Ask your database questions in plain English' }]));
+  console.log(boxLine([{ text: '' }]));
   console.log(
-    chalk.cyanBright('mongosh-llm') + chalk.gray(' - ask your database questions in plain English'),
+    boxLine([
+      { text: '   mode: ' },
+      { text: mode, color: (s) => MONGO_GREEN(s) },
+      { text: '   safety: ' },
+      { text: queryMode, color: safetyColor },
+    ]),
   );
+  console.log(boxLine([{ text: '   type "exit" to quit, "--clear" to reset conversation' }]));
+  console.log(chalk.gray(`└${'─'.repeat(BOX_WIDTH + 2)}┘`));
 }
 
 export function printToolUse(query: string): void {

@@ -39,11 +39,8 @@ export async function startRepl(config: AppConfig): Promise<void> {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   const ask: Ask = (prompt) => rl.question(prompt);
 
-  printBanner();
   const mode = describeProvider(config);
-  printInfo(
-    `Mode: ${config.queryMode} (${mode}). Type "exit" to quit, "--clear" to reset conversation.\n`,
-  );
+  printBanner(mode, config.queryMode);
 
   const llm = new ToolUseOrchestrator(createLlmClient(config), config.mongodbUri);
   const history = new ConversationHistory();
