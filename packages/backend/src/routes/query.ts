@@ -1,9 +1,12 @@
 import type { Request, Response } from 'express';
-import { backendQueryRequestSchema, type ConversationMessage } from '@emrah.su/mongosh-llm-shared';
-import type { ClaudeProxy } from '../llm.js';
+import {
+  backendQueryRequestSchema,
+  type ConversationMessage,
+  type LlmClient,
+} from '@emrah.su/mongosh-llm-shared';
 
-/** POST /query: stateless single-turn proxy - validate, call Claude once, return raw content blocks. */
-export function createQueryHandler(claude: ClaudeProxy) {
+/** POST /query: stateless single-turn proxy - validate, call the LLM once, return raw content blocks. */
+export function createQueryHandler(llm: LlmClient) {
   return async (req: Request, res: Response): Promise<void> => {
     const parseResult = backendQueryRequestSchema.safeParse(req.body);
     if (!parseResult.success) {
@@ -14,7 +17,7 @@ export function createQueryHandler(claude: ClaudeProxy) {
     try {
       // messages are intentionally passed through loosely-validated - the Anthropic SDK itself
       // rejects malformed content blocks, so we don't duplicate that validation here.
-      const result = await claude.sendTurn({
+      const result = await llm.sendTurn({
         system: parseResult.data.system,
         messages: parseResult.data.messages as ConversationMessage[],
       });

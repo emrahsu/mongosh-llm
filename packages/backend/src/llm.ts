@@ -4,12 +4,13 @@ import {
   DEFAULT_MAX_TOKENS,
   DEFAULT_TEMPERATURE,
   type ConversationMessage,
+  type LlmClient,
   type LlmTurnRequest,
   type LlmTurnResult,
 } from '@emrah.su/mongosh-llm-shared';
 
 /** Single-turn Claude proxy: holds the API key server-side, never touches MongoDB directly. */
-export class ClaudeProxy {
+export class ClaudeProxy implements LlmClient {
   private readonly client: Anthropic;
 
   constructor(

@@ -13,6 +13,7 @@ const { createApp } = await import('./app.js');
 
 const baseConfig: BackendConfig = {
   port: 0,
+  llmProvider: 'anthropic',
   anthropicApiKey: 'test-key',
   anthropicModel: 'claude-test',
   apiKey: undefined,

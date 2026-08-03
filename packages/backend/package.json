@@ -1,6 +1,6 @@
 {
   "name": "@emrah.su/mongosh-llm-backend",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Optional self-hostable backend for mongosh-llm - a stateless single-turn Claude proxy",
   "license": "MIT",
   "repository": {
@@ -10,7 +10,9 @@
   },
   "type": "module",
   "main": "./dist/index.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsx src/index.ts",
@@ -20,6 +22,7 @@
   "dependencies": {
     "@emrah.su/mongosh-llm-shared": "^0.1.0",
     "@anthropic-ai/sdk": "^0.32.1",
+    "@aws-sdk/client-bedrock-runtime": "^3.1102.0",
     "express": "^4.21.2",
     "cors": "^2.8.5",
     "helmet": "^8.0.0",

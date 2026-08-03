@@ -3,13 +3,13 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
 import type { BackendConfig } from './config.js';
-import { ClaudeProxy } from './llm.js';
+import { createLlmClient } from './factory.js';
 import { createAuthMiddleware } from './middleware/auth.js';
 import { createQueryHandler } from './routes/query.js';
 
 export function createApp(config: BackendConfig): Express {
   const app = express();
-  const claude = new ClaudeProxy(config.anthropicApiKey, config.anthropicModel);
+  const llm = createLlmClient(config);
 
   app.use(helmet());
   app.use(cors());
@@ -27,7 +27,7 @@ export function createApp(config: BackendConfig): Express {
     res.json({ status: 'ok' });
   });
 
-  app.post('/query', createAuthMiddleware(config.apiKey), createQueryHandler(claude));
+  app.post('/query', createAuthMiddleware(config.apiKey), createQueryHandler(llm));
 
   return app;
 }
