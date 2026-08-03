@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { backendQueryRequestSchema, type ConversationMessage } from '@emrahsu/mongosh-llm-shared';
+import { backendQueryRequestSchema, type ConversationMessage } from '@emrah.su/mongosh-llm-shared';
 import type { ClaudeProxy } from '../llm.js';
 
 /** POST /query: stateless single-turn proxy - validate, call Claude once, return raw content blocks. */

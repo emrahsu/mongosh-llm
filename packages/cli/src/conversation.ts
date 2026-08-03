@@ -1,4 +1,4 @@
-import { MAX_HISTORY_MESSAGES, type ConversationMessage } from '@emrahsu/mongosh-llm-shared';
+import { MAX_HISTORY_MESSAGES, type ConversationMessage } from '@emrah.su/mongosh-llm-shared';
 
 /** Bounded conversation history; keeps only the most recent messages within the configured limit. */
 export class ConversationHistory {

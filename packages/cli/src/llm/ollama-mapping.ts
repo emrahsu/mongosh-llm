@@ -1,5 +1,5 @@
 import type Anthropic from '@anthropic-ai/sdk';
-import type { ConversationMessage } from '@emrahsu/mongosh-llm-shared';
+import type { ConversationMessage } from '@emrah.su/mongosh-llm-shared';
 
 export interface OllamaToolCall {
   function: {

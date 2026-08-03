@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type Anthropic from '@anthropic-ai/sdk';
-import type { LlmClient, LlmTurnResult } from '@emrahsu/mongosh-llm-shared';
+import type { LlmClient, LlmTurnResult } from '@emrah.su/mongosh-llm-shared';
 
 const executeToolQueryMock = vi.fn();
 vi.mock('../mongosh/client.js', () => ({

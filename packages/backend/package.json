@@ -1,5 +1,5 @@
 {
-  "name": "@emrahsu/mongosh-llm-backend",
+  "name": "@emrah.su/mongosh-llm-backend",
   "version": "0.1.0",
   "description": "Optional self-hostable backend for mongosh-llm - a stateless single-turn Claude proxy",
   "license": "MIT",
@@ -18,7 +18,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@emrahsu/mongosh-llm-shared": "^0.1.0",
+    "@emrah.su/mongosh-llm-shared": "^0.1.0",
     "@anthropic-ai/sdk": "^0.32.1",
     "express": "^4.21.2",
     "cors": "^2.8.5",

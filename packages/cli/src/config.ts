@@ -7,7 +7,7 @@ import {
   type AppConfig,
   type LlmProvider,
   type QueryMode,
-} from '@emrahsu/mongosh-llm-shared';
+} from '@emrah.su/mongosh-llm-shared';
 
 export interface ConfigOverrides {
   queryMode?: QueryMode;

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import type { ConversationMessage } from '@emrahsu/mongosh-llm-shared';
-import { RUN_QUERY_TOOL } from '@emrahsu/mongosh-llm-shared';
+import type { ConversationMessage } from '@emrah.su/mongosh-llm-shared';
+import { RUN_QUERY_TOOL } from '@emrah.su/mongosh-llm-shared';
 import { toOllamaMessages, toOllamaTool, fromOllamaMessage } from './ollama-mapping.js';
 
 describe('toOllamaTool', () => {

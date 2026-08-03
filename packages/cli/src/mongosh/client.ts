@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { TOOL_RESULT_MAX_DOCS, type ToolExecutionResult } from '@emrahsu/mongosh-llm-shared';
+import { TOOL_RESULT_MAX_DOCS, type ToolExecutionResult } from '@emrah.su/mongosh-llm-shared';
 import { maskErrorMessage } from '../security.js';
 
 const execFileAsync = promisify(execFile);

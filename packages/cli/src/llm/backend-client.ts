@@ -1,4 +1,4 @@
-import type { LlmClient, LlmTurnRequest, LlmTurnResult } from '@emrahsu/mongosh-llm-shared';
+import type { LlmClient, LlmTurnRequest, LlmTurnResult } from '@emrah.su/mongosh-llm-shared';
 
 /** Calls a self-hosted backend instead of Anthropic directly, so the API key never leaves the server. */
 export class BackendLlmClient implements LlmClient {

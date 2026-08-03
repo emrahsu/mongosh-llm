@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import type { QueryMode } from '@emrahsu/mongosh-llm-shared';
+import type { QueryMode } from '@emrah.su/mongosh-llm-shared';
 import { loadConfig } from './config.js';
 import { runCommandOnce, startRepl } from './repl.js';
 import { printError } from './display.js';

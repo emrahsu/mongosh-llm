@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import type { QueryMode, ToolExecutionResult } from '@emrahsu/mongosh-llm-shared';
+import type { QueryMode, ToolExecutionResult } from '@emrah.su/mongosh-llm-shared';
 
 const PAGE_SIZE_LINES = 100;
 const BOX_WIDTH = 54;

@@ -1,6 +1,6 @@
 import { createInterface } from 'node:readline/promises';
 import chalk from 'chalk';
-import type { AppConfig } from '@emrahsu/mongosh-llm-shared';
+import type { AppConfig } from '@emrah.su/mongosh-llm-shared';
 import { createLlmClient } from './llm/factory.js';
 import { ToolUseOrchestrator } from './llm/tool-use-orchestrator.js';
 import { ConversationHistory } from './conversation.js';

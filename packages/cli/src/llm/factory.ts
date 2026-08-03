@@ -1,4 +1,4 @@
-import type { AppConfig, LlmClient, LlmProvider } from '@emrahsu/mongosh-llm-shared';
+import type { AppConfig, LlmClient, LlmProvider } from '@emrah.su/mongosh-llm-shared';
 import { AnthropicDirectClient } from './anthropic-direct-client.js';
 import { BackendLlmClient } from './backend-client.js';
 import { OllamaLlmClient } from './ollama-client.js';

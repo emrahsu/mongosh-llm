@@ -1,4 +1,4 @@
-import type { QueryMode, QueryValidationResult } from '@emrahsu/mongosh-llm-shared';
+import type { QueryMode, QueryValidationResult } from '@emrah.su/mongosh-llm-shared';
 
 const WRITE_OPERATION_PATTERN =
   /\b(insert(One|Many)?|bulkWrite|update(One|Many)?|replaceOne|findOneAndUpdate|findOneAndDelete|delete(One|Many)?|remove|drop(Database|Collection|Index|Indexes)?|create(Collection|Index|Indexes)|renameCollection|collMod)\s*\(/;

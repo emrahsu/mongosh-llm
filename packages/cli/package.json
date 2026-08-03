@@ -1,5 +1,5 @@
 {
-  "name": "@emrahsu/mongosh-llm-cli",
+  "name": "@emrah.su/mongosh-llm-cli",
   "version": "0.1.0",
   "description": "Query MongoDB in plain English - CLI powered by Claude, a self-hosted backend, or a local Ollama model",
   "license": "MIT",
@@ -21,7 +21,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@emrahsu/mongosh-llm-shared": "^0.1.0",
+    "@emrah.su/mongosh-llm-shared": "^0.1.0",
     "@anthropic-ai/sdk": "^0.32.1",
     "commander": "^13.0.0",
     "chalk": "^5.4.1",

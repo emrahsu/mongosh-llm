@@ -6,7 +6,7 @@ import {
   type LlmClient,
   type LlmResponse,
   type QueryMode,
-} from '@emrahsu/mongosh-llm-shared';
+} from '@emrah.su/mongosh-llm-shared';
 import { executeToolQuery, parseDatabaseName } from '../mongosh/client.js';
 import { printToolUse, printToolResult } from '../display.js';
 import { QueryCache } from '../cache.js';

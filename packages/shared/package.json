@@ -1,5 +1,5 @@
 {
-  "name": "@emrahsu/mongosh-llm-shared",
+  "name": "@emrah.su/mongosh-llm-shared",
   "version": "0.1.0",
   "description": "Shared types, system prompt, and tool definitions for mongosh-llm",
   "license": "MIT",

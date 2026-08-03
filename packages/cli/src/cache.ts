@@ -1,4 +1,4 @@
-import { TOOL_CACHE_TTL_MINUTES, type ToolExecutionResult } from '@emrahsu/mongosh-llm-shared';
+import { TOOL_CACHE_TTL_MINUTES, type ToolExecutionResult } from '@emrah.su/mongosh-llm-shared';
 
 interface CacheEntry {
   result: ToolExecutionResult;

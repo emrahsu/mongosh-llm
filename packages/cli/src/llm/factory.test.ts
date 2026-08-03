@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { AppConfig } from '@emrahsu/mongosh-llm-shared';
+import type { AppConfig } from '@emrah.su/mongosh-llm-shared';
 import { createLlmClient } from './factory.js';
 import { AnthropicDirectClient } from './anthropic-direct-client.js';
 import { BackendLlmClient } from './backend-client.js';

@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { z } from 'zod';
-import { DEFAULT_ANTHROPIC_MODEL } from '@emrahsu/mongosh-llm-shared';
+import { DEFAULT_ANTHROPIC_MODEL } from '@emrah.su/mongosh-llm-shared';
 
 const backendConfigSchema = z.object({
   port: z.coerce.number().int().positive().default(3000),

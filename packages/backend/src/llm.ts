@@ -6,7 +6,7 @@ import {
   type ConversationMessage,
   type LlmTurnRequest,
   type LlmTurnResult,
-} from '@emrahsu/mongosh-llm-shared';
+} from '@emrah.su/mongosh-llm-shared';
 
 /** Single-turn Claude proxy: holds the API key server-side, never touches MongoDB directly. */
 export class ClaudeProxy {

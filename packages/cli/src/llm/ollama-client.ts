@@ -1,5 +1,5 @@
-import type { LlmClient, LlmTurnRequest, LlmTurnResult } from '@emrahsu/mongosh-llm-shared';
-import { RUN_QUERY_TOOL } from '@emrahsu/mongosh-llm-shared';
+import type { LlmClient, LlmTurnRequest, LlmTurnResult } from '@emrah.su/mongosh-llm-shared';
+import { RUN_QUERY_TOOL } from '@emrah.su/mongosh-llm-shared';
 import { toOllamaMessages, toOllamaTool, fromOllamaMessage, type OllamaToolCall } from './ollama-mapping.js';
 
 interface OllamaChatResponse {

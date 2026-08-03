@@ -6,7 +6,7 @@ import {
   type LlmClient,
   type LlmTurnRequest,
   type LlmTurnResult,
-} from '@emrahsu/mongosh-llm-shared';
+} from '@emrah.su/mongosh-llm-shared';
 
 /** Calls Anthropic directly using the user's own API key - no backend involved. */
 export class AnthropicDirectClient implements LlmClient {
