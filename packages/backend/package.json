@@ -1,6 +1,6 @@
 {
   "name": "@emrah.su/mongosh-llm-backend",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Optional self-hostable backend for mongosh-llm - a stateless single-turn Claude proxy",
   "license": "MIT",
   "repository": {

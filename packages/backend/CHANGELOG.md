@@ -1,5 +1,11 @@
 # @emrah.su/mongosh-llm-backend
 
+## 0.2.1
+
+### Patch Changes
+
+- Fix Bedrock provider: remove the `temperature` inferenceConfig field, which newer Claude models (e.g. sonnet-5) reject as deprecated, causing every Bedrock request to fail.
+
 ## 0.2.0
 
 ### Minor Changes

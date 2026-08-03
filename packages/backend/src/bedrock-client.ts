@@ -2,7 +2,6 @@ import { BedrockRuntimeClient, ConverseCommand } from '@aws-sdk/client-bedrock-r
 import {
   RUN_QUERY_TOOL,
   DEFAULT_MAX_TOKENS,
-  DEFAULT_TEMPERATURE,
   type LlmClient,
   type LlmTurnRequest,
   type LlmTurnResult,
@@ -27,7 +26,9 @@ export class BedrockLlmClient implements LlmClient {
       system: [{ text: system }],
       messages: toBedrockMessages(messages),
       toolConfig: { tools: [toBedrockTool(RUN_QUERY_TOOL)] },
-      inferenceConfig: { maxTokens: DEFAULT_MAX_TOKENS, temperature: DEFAULT_TEMPERATURE },
+      // `temperature` is intentionally omitted - newer Claude models on Bedrock (e.g. sonnet-5)
+      // reject it as a deprecated inferenceConfig field.
+      inferenceConfig: { maxTokens: DEFAULT_MAX_TOKENS },
     });
 
     const response = await this.client.send(command);
