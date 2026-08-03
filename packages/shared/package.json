@@ -1,6 +1,6 @@
 {
   "name": "@emrah.su/mongosh-llm-shared",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Shared types, system prompt, and tool definitions for mongosh-llm",
   "license": "MIT",
   "repository": {
@@ -11,7 +11,9 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

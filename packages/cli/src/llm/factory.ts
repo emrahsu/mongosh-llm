@@ -15,7 +15,7 @@ export function createLlmClient(config: AppConfig): LlmClient {
     case 'anthropic':
       return new AnthropicDirectClient(config.anthropicApiKey as string, config.anthropicModel);
     case 'backend':
-      return new BackendLlmClient(config.backendUrl as string);
+      return new BackendLlmClient(config.backendUrl as string, config.backendApiKey);
     case 'ollama':
       return new OllamaLlmClient(config.ollamaBaseUrl as string, config.ollamaModel);
   }

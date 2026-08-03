@@ -12,6 +12,7 @@ export interface AppConfig {
   anthropicApiKey?: string;
   anthropicModel: string;
   backendUrl?: string;
+  backendApiKey?: string;
   ollamaBaseUrl?: string;
   ollamaModel: string;
   queryMode: QueryMode;

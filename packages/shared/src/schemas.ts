@@ -15,6 +15,7 @@ export const appConfigSchema = z
     anthropicApiKey: z.string().optional(),
     anthropicModel: z.string().min(1),
     backendUrl: z.string().url().optional(),
+    backendApiKey: z.string().optional(),
     ollamaBaseUrl: z.string().url().optional(),
     ollamaModel: z.string().min(1),
     queryMode: queryModeSchema.default('safe'),

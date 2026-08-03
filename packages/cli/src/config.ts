@@ -27,6 +27,7 @@ export function loadConfig(overrides: ConfigOverrides = {}): AppConfig {
     anthropicApiKey: process.env.ANTHROPIC_API_KEY || undefined,
     anthropicModel: process.env.ANTHROPIC_MODEL || DEFAULT_ANTHROPIC_MODEL,
     backendUrl: process.env.BACKEND_URL || undefined,
+    backendApiKey: process.env.BACKEND_API_KEY || undefined,
     ollamaBaseUrl,
     ollamaModel: process.env.OLLAMA_MODEL || DEFAULT_OLLAMA_MODEL,
     queryMode: overrides.queryMode ?? (process.env.QUERY_MODE as QueryMode | undefined) ?? 'safe',

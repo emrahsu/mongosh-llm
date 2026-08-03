@@ -1,5 +1,12 @@
 # @emrah.su/mongosh-llm-backend
 
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @emrah.su/mongosh-llm-shared@0.2.0
+
 ## 0.2.1
 
 ### Patch Changes
