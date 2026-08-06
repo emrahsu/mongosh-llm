@@ -13,3 +13,10 @@ coverage/
 
 # Docker volumes are managed by Docker, not git
 docker/seed/*.archive
+
+# Agent scratch space: handoff notes and throwaway test scripts. Deliberately not committed - these
+# are local working notes, and may reference private deployment details.
+agents/
+
+# Local agent tool permissions - machine-specific, not shared
+.claude/

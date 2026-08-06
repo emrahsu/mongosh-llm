@@ -38,9 +38,11 @@ export function printBanner(mode: string, queryMode: QueryMode): void {
 }
 
 /** Shows a tool-use query before it runs, dimmed so it doesn't compete with the actual answer. */
-export function printToolUse(query: string, cached: boolean): void {
+export function printToolUse(query: string, cached: boolean, remote = false): void {
   const cacheIndicator = cached ? ' [cached]' : '';
-  console.log(chalk.gray(`  🔍 ${query}${cacheIndicator}`));
+  // Only mark queries that actually left the machine - a cache hit never did.
+  const icon = remote && !cached ? '☁' : '🔍';
+  console.log(chalk.gray(`  ${icon} ${query}${cacheIndicator}`));
 }
 
 /** Shows a one-line summary of what a tool call returned, mirroring the query's dimmed style. */

@@ -1,11 +1,12 @@
 import { createInterface } from 'node:readline/promises';
 import chalk from 'chalk';
-import type { AppConfig } from '@emrah.su/mongosh-llm-shared';
+import { validateQuery, type AppConfig } from '@emrah.su/mongosh-llm-shared';
 import { createLlmClient } from './llm/factory.js';
 import { ToolUseOrchestrator } from './llm/tool-use-orchestrator.js';
 import { ConversationHistory } from './conversation.js';
-import { executeCommand, fetchSchema, MongoshNotFoundError } from './mongosh/client.js';
-import { validateQuery } from './validation.js';
+import { createQueryExecutor } from './executor/factory.js';
+import type { QueryExecutor } from './executor/types.js';
+import { MongoshNotFoundError } from './mongosh/client.js';
 import { confirmWriteOperation } from './prompt.js';
 import { printBanner, printError, printInfo, printPaginated } from './display.js';
 
@@ -25,32 +26,44 @@ function describeProvider(config: AppConfig): string {
 type Ask = (prompt: string) => Promise<string>;
 
 /** Runs a single mongosh command directly (used by --exec), applying the same safety checks as the REPL. */
-export async function runCommandOnce(command: string, config: AppConfig): Promise<void> {
+export async function runCommandOnce(
+  command: string,
+  config: AppConfig,
+  executor: QueryExecutor = createQueryExecutor(config),
+): Promise<void> {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   const ask: Ask = (prompt) => rl.question(prompt);
   try {
-    await executeAndDisplay(command, config, ask);
+    await executeAndDisplay(command, config, executor, ask);
   } finally {
     rl.close();
   }
 }
 
-export async function startRepl(config: AppConfig): Promise<void> {
+export async function startRepl(
+  config: AppConfig,
+  executor: QueryExecutor = createQueryExecutor(config),
+): Promise<void> {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   const ask: Ask = (prompt) => rl.question(prompt);
 
   const mode = describeProvider(config);
   printBanner(mode, config.queryMode);
 
-  const llm = new ToolUseOrchestrator(createLlmClient(config), config.mongodbUri);
   const history = new ConversationHistory();
 
+  // Both of these can fail if the database is unreachable; neither is fatal to the REPL itself, so
+  // report and carry on with a degraded prompt rather than refusing to start.
+  let currentDatabase: string | undefined;
   let schema = '';
   try {
-    schema = await fetchSchema(config.mongodbUri);
+    currentDatabase = await executor.getDatabaseName();
+    schema = await executor.fetchSchema();
   } catch (error) {
     printError(error instanceof Error ? error.message : String(error));
   }
+
+  const llm = new ToolUseOrchestrator(createLlmClient(config), executor, currentDatabase);
 
   for (;;) {
     let input: string;
@@ -73,7 +86,7 @@ export async function startRepl(config: AppConfig): Promise<void> {
       continue;
     }
     if (input.startsWith('--exec ')) {
-      await executeAndDisplay(input.slice('--exec '.length).trim(), config, ask);
+      await executeAndDisplay(input.slice('--exec '.length).trim(), config, executor, ask);
       continue;
     }
     if (!input) {
@@ -90,7 +103,7 @@ export async function startRepl(config: AppConfig): Promise<void> {
         continue;
       }
 
-      await executeAndDisplay(response.content, config, ask, history);
+      await executeAndDisplay(response.content, config, executor, ask, history);
     } catch (error) {
       printError(error instanceof Error ? error.message : String(error));
     }
@@ -103,6 +116,7 @@ export async function startRepl(config: AppConfig): Promise<void> {
 async function executeAndDisplay(
   command: string,
   config: AppConfig,
+  executor: QueryExecutor,
   ask: Ask,
   history?: ConversationHistory,
 ): Promise<void> {
@@ -117,7 +131,7 @@ async function executeAndDisplay(
   }
 
   try {
-    const result = await executeCommand(config.mongodbUri, command);
+    const result = await executor.executeCommand(command);
     await printPaginated(result, ask);
     history?.push({ role: 'assistant', content: `Command result: ${truncateForHistory(result)}` });
   } catch (error) {

@@ -7,24 +7,24 @@ import {
   type LlmResponse,
   type QueryMode,
 } from '@emrah.su/mongosh-llm-shared';
-import { executeToolQuery, parseDatabaseName } from '../mongosh/client.js';
+import type { QueryExecutor } from '../executor/types.js';
 import { printToolUse, printToolResult } from '../display.js';
 import { QueryCache } from '../cache.js';
 
 /**
  * Drives the run_query tool-use loop against any LlmClient (direct Anthropic or backend proxy).
- * Tool execution always happens here, client-side, since only the CLI has mongosh access.
+ * The loop itself always runs client-side; the injected QueryExecutor decides whether the queries
+ * it issues hit a local mongosh or a remote backend.
  */
 export class ToolUseOrchestrator {
   private readonly cache = new QueryCache();
-  private readonly currentDatabase?: string;
 
   constructor(
     private readonly llmClient: LlmClient,
-    private readonly mongodbUri: string,
-  ) {
-    this.currentDatabase = parseDatabaseName(mongodbUri);
-  }
+    private readonly executor: QueryExecutor,
+    /** Resolved once by the caller, since looking it up may require a network round trip. */
+    private readonly currentDatabase?: string,
+  ) {}
 
   async ask(
     history: ConversationMessage[],
@@ -72,9 +72,9 @@ export class ToolUseOrchestrator {
     for (const toolUse of toolUseBlocks) {
       const query = (toolUse.input as { query?: string }).query ?? '';
       const cachedResult = this.cache.get(query);
-      printToolUse(query, Boolean(cachedResult));
+      printToolUse(query, Boolean(cachedResult), this.executor.isRemote);
 
-      const result = cachedResult ?? (await executeToolQuery(this.mongodbUri, query));
+      const result = cachedResult ?? (await this.executor.executeToolQuery(query));
       if (!cachedResult) {
         this.cache.set(query, result);
       }

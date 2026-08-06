@@ -15,27 +15,62 @@ recent orders"* and get back a real mongosh command, executed for you.
   not guessing from thin air
 - **Safe by default**: read-only query mode is on unless you explicitly opt
   into unsafe mode (which then asks for confirmation before every write)
+- **Nobody needs the credentials**: point the CLI at a backend and queries run
+  *there*, so your team can ask questions without ever holding a connection
+  string or installing mongosh
 
 ## Quick start
 
-Requires Node.js 22+, npm, and [mongosh](https://www.mongodb.com/try/download/shell) installed.
+```
+npm install -g @emrah.su/mongosh-llm-cli
+mongosh-llm
+```
+
+The first run asks a few questions and saves your answers, so there's no file
+to write by hand. Run `mongosh-llm setup` any time to change them.
+
+For the two local modes you also need
+[mongosh](https://www.mongodb.com/try/download/shell) installed and a MongoDB
+connection string. Working from a clone instead:
 
 ```
 npm install
 npm run build
-cp .env.example .env   # then edit .env - see Configuration below
 npm run dev:cli
 ```
 
 ## Configuration
 
-Copy [.env.example](.env.example) to `.env` and set `MONGODB_URI` plus **one** of:
+`mongosh-llm setup` is the easy path - it writes a config file in your user
+profile (`%APPDATA%\mongosh-llm\` on Windows, `~/.config/mongosh-llm/`
+elsewhere) that works from any directory.
+
+To configure by hand or in CI, copy [.env.example](.env.example) to `.env`.
+Environment variables take precedence over the saved file, so you can override
+a single setting per-invocation.
+
+Pick **one** way to reach an LLM:
 
 - `ANTHROPIC_API_KEY` - call Anthropic directly with your own key
-- `BACKEND_URL` - point at a self-hosted backend (see `packages/backend`)
+- `BACKEND_URL` (+ `BACKEND_API_KEY`) - point at a self-hosted backend (see `packages/backend`)
 - `OLLAMA_BASE_URL` + `OLLAMA_MODEL` - run fully locally, no API key at all
 
 `LLM_PROVIDER` can force a specific one explicitly if you have more than one configured.
+
+### Where queries run
+
+`EXECUTION_MODE` decides who talks to MongoDB:
+
+| Mode | Queries run | Needs `MONGODB_URI` | Needs local mongosh |
+|---|---|---|---|
+| `local` (default) | on your machine | yes | yes |
+| `backend` | on the backend | no | no |
+
+`backend` mode is for teams: the backend holds the connection string and runs
+each query itself, so the credentials never leave the server and nothing needs
+installing beyond the CLI. Queries are still shown as they run, marked with a
+`☁` to make clear they left your machine. Set `MONGODB_URI` on the *backend*
+to enable it - see [packages/backend](packages/backend).
 
 ## Project layout
 

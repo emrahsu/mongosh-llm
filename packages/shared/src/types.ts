@@ -6,8 +6,16 @@ export type QueryMode = 'safe' | 'unsafe';
 /** Explicit provider selector; if unset, config.ts falls back to inferring from which vars are set. */
 export type LlmProvider = 'anthropic' | 'backend' | 'ollama';
 
+/**
+ * Where queries actually run. 'local' shells out to mongosh with a connection string the user
+ * holds; 'backend' asks the backend to execute them, so the user never sees database credentials.
+ */
+export type ExecutionMode = 'local' | 'backend';
+
 export interface AppConfig {
-  mongodbUri: string;
+  /** Required in 'local' execution mode; unused (and absent) in 'backend' mode. */
+  mongodbUri?: string;
+  executionMode: ExecutionMode;
   llmProvider?: LlmProvider;
   anthropicApiKey?: string;
   anthropicModel: string;

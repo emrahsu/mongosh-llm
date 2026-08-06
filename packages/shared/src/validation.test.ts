@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { isWriteOperation, validateQuery } from './validation.js';
 
+
 describe('isWriteOperation', () => {
   it.each([
     'db.users.insertOne({})',

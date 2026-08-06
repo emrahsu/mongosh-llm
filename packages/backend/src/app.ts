@@ -6,6 +6,12 @@ import type { BackendConfig } from './config.js';
 import { createLlmClient } from './factory.js';
 import { createAuthMiddleware } from './middleware/auth.js';
 import { createQueryHandler } from './routes/query.js';
+import {
+  createConnectionInfoHandler,
+  createExecuteHandler,
+  createSchemaHandler,
+} from './routes/execute.js';
+import { MongoRunner } from './mongo-runner.js';
 
 export function createApp(config: BackendConfig): Express {
   const app = express();
@@ -27,7 +33,19 @@ export function createApp(config: BackendConfig): Express {
     res.json({ status: 'ok' });
   });
 
-  app.post('/query', createAuthMiddleware(config.apiKey), createQueryHandler(llm));
+  const auth = createAuthMiddleware(config.apiKey);
+  app.post('/query', auth, createQueryHandler(llm));
+
+  // Query execution is only mounted when a connection string is configured, so a backend deployed
+  // purely as an LLM proxy (the OSS default) exposes no database surface at all.
+  if (config.mongodbUri) {
+    const readOnly = new MongoRunner(config.mongodbUri);
+    const readWrite = config.mongodbUriUnsafe ? new MongoRunner(config.mongodbUriUnsafe) : undefined;
+
+    app.get('/connection-info', auth, createConnectionInfoHandler(readOnly, readWrite));
+    app.get('/schema', auth, createSchemaHandler(readOnly));
+    app.post('/execute', auth, createExecuteHandler(readOnly, readWrite));
+  }
 
   return app;
 }

@@ -77,3 +77,46 @@ describe('POST /query', () => {
     expect(withKey.status).toBe(200);
   });
 });
+
+describe('query execution routes', () => {
+  it('are absent when no connection string is configured, exposing no database surface', async () => {
+    const app = createApp(baseConfig);
+
+    expect((await request(app).post('/execute').send({ query: 'db.x.find()' })).status).toBe(404);
+    expect((await request(app).get('/connection-info')).status).toBe(404);
+    expect((await request(app).get('/schema')).status).toBe(404);
+  });
+
+  it('are mounted once a connection string is configured', async () => {
+    const app = createApp({ ...baseConfig, mongodbUri: 'mongodb://localhost:27017/testdb' });
+
+    const res = await request(app).get('/connection-info');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ databaseName: 'testdb', unsafeAvailable: false });
+  });
+
+  it('require the API key like /query does', async () => {
+    const app = createApp({
+      ...baseConfig,
+      apiKey: 'secret',
+      mongodbUri: 'mongodb://localhost:27017/testdb',
+    });
+
+    expect((await request(app).get('/connection-info')).status).toBe(401);
+    expect((await request(app).post('/execute').send({ query: 'db.x.find()' })).status).toBe(401);
+    expect((await request(app).get('/connection-info').set('x-api-key', 'secret')).status).toBe(200);
+  });
+
+  it('advertises unsafe mode only when a read-write connection string is configured', async () => {
+    const app = createApp({
+      ...baseConfig,
+      mongodbUri: 'mongodb://localhost:27017/testdb',
+      mongodbUriUnsafe: 'mongodb://localhost:27017/testdb',
+    });
+
+    const res = await request(app).get('/connection-info');
+
+    expect(res.body.unsafeAvailable).toBe(true);
+  });
+});

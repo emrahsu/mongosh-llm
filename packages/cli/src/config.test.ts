@@ -1,8 +1,18 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { loadConfig } from './config.js';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
+// Onboarding writes to a real per-user path; keep these tests reading an empty stored config so
+// they exercise env-var handling only and never touch the developer's own config file.
+vi.mock('./config-store.js', () => ({
+  readStoredConfig: () => ({}),
+  getConfigPath: () => '/tmp/mongosh-llm-test/config.json',
+  writeStoredConfig: () => undefined,
+}));
+
+const { ConfigNotFoundError, loadConfig } = await import('./config.js');
 
 const ENV_KEYS = [
   'MONGODB_URI',
+  'EXECUTION_MODE',
   'LLM_PROVIDER',
   'ANTHROPIC_API_KEY',
   'ANTHROPIC_MODEL',
@@ -32,8 +42,34 @@ afterEach(() => {
 });
 
 describe('loadConfig', () => {
-  it('throws when no LLM provider is configured', () => {
-    expect(() => loadConfig()).toThrow(/ANTHROPIC_API_KEY, BACKEND_URL, or OLLAMA_BASE_URL/);
+  it('signals nothing-configured with ConfigNotFoundError so the caller can offer onboarding', () => {
+    expect(() => loadConfig()).toThrow(ConfigNotFoundError);
+  });
+
+  it('defaults to local execution when a connection string is present', () => {
+    process.env.ANTHROPIC_API_KEY = 'test-key';
+    expect(loadConfig().executionMode).toBe('local');
+  });
+
+  it('infers backend execution when only a backend URL is configured', () => {
+    process.env.BACKEND_URL = 'http://localhost:3000';
+    const config = loadConfig();
+    expect(config.executionMode).toBe('backend');
+    // No connection string should be invented in backend mode - the backend owns it.
+    expect(config.mongodbUri).toBeUndefined();
+  });
+
+  it('keeps local execution when both a connection string and a backend URL are set', () => {
+    process.env.BACKEND_URL = 'http://localhost:3000';
+    process.env.MONGODB_URI = 'mongodb://localhost:27017/mine';
+    expect(loadConfig().executionMode).toBe('local');
+  });
+
+  it('lets EXECUTION_MODE override the inference', () => {
+    process.env.BACKEND_URL = 'http://localhost:3000';
+    process.env.MONGODB_URI = 'mongodb://localhost:27017/mine';
+    process.env.EXECUTION_MODE = 'backend';
+    expect(loadConfig().executionMode).toBe('backend');
   });
 
   it('defaults to safe mode and a local MongoDB URI', () => {
