@@ -25,6 +25,11 @@
     automatically on first use when nothing is configured. In backend mode it never asks for a
     connection string. Configuration now layers CLI flags over env/`.env` over the saved file.
 
+- a0a0aaa: Add a CommonJS build so the CLI can be compiled into a single native executable, and
+  support a `MONGOSH_LLM_DEFAULT_BACKEND_URL` build-time variable that pre-fills the backend URL.
+  Together these let a team distribute one executable that needs no Node, npm or mongosh installed -
+  an operator just pastes an access key.
+
 ### Patch Changes
 
 - Updated dependencies [190231a]
