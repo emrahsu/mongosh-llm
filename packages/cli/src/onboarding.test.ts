@@ -24,6 +24,7 @@ function scriptedPrompts(...answers: string[]) {
 beforeEach(() => {
   writeStoredConfigMock.mockReset();
   storedConfig = {};
+  delete process.env.MONGOSH_LLM_DEFAULT_BACKEND_URL;
 });
 
 describe('runOnboarding', () => {
@@ -109,6 +110,34 @@ describe('runOnboarding', () => {
     const saved = await runOnboarding(scriptedPrompts('9'));
     expect(saved).toBeUndefined();
     expect(writeStoredConfigMock).not.toHaveBeenCalled();
+  });
+
+  describe('with a backend URL baked in by a distribution', () => {
+    it('accepts it on enter, so an operator only supplies an access key', async () => {
+      process.env.MONGOSH_LLM_DEFAULT_BACKEND_URL = 'https://baked.example.com';
+
+      const saved = await runOnboarding(scriptedPrompts('1', '', 'ops-key'));
+
+      expect(saved?.backendUrl).toBe('https://baked.example.com');
+      expect(saved?.backendApiKey).toBe('ops-key');
+    });
+
+    it('still lets the operator type a different URL', async () => {
+      process.env.MONGOSH_LLM_DEFAULT_BACKEND_URL = 'https://baked.example.com';
+
+      const saved = await runOnboarding(scriptedPrompts('1', 'https://other.example.com', 'k'));
+
+      expect(saved?.backendUrl).toBe('https://other.example.com');
+    });
+
+    it('prefers a previously saved URL, so re-running setup does not silently revert it', async () => {
+      process.env.MONGOSH_LLM_DEFAULT_BACKEND_URL = 'https://baked.example.com';
+      storedConfig = { backendUrl: 'https://saved.example.com' };
+
+      const saved = await runOnboarding(scriptedPrompts('1', '', 'k'));
+
+      expect(saved?.backendUrl).toBe('https://saved.example.com');
+    });
   });
 
   it('always starts in safe mode, so a new operator cannot accidentally write', async () => {

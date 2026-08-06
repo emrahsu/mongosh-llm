@@ -5,7 +5,13 @@ import prettier from 'eslint-config-prettier';
 export default tseslint.config(
   {
     // `agents/` holds local agent notes and throwaway manual test scripts, not shipped source.
-    ignores: ['**/dist/**', '**/node_modules/**', '**/coverage/**', 'agents/**'],
+    ignores: [
+      '**/dist/**',
+      '**/dist-cjs/**',
+      '**/node_modules/**',
+      '**/coverage/**',
+      'agents/**',
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

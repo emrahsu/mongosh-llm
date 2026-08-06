@@ -65,12 +65,23 @@ export async function runOnboarding(prompts: Prompts = createPrompts()): Promise
 }
 
 async function setupBackend(prompts: Prompts, existing: StoredConfig): Promise<StoredConfig | undefined> {
-  console.log(chalk.gray('\n  Your admin will have given you these two values.\n'));
+  // A distribution can bake in its own backend URL so operators only supply an access key. Kept
+  // separate from BACKEND_URL (which loadConfig reads) so a baked-in default can't make config look
+  // complete when the access key is still missing - that would skip setup and 401 on first query.
+  const defaultUrl = process.env.MONGOSH_LLM_DEFAULT_BACKEND_URL?.trim() || undefined;
+
+  console.log(
+    chalk.gray(
+      defaultUrl
+        ? '\n  Your admin will have given you an access key.\n'
+        : '\n  Your admin will have given you these two values.\n',
+    ),
+  );
 
   const url = await askRequired(
     prompts,
     '  Backend URL',
-    existing.backendUrl,
+    existing.backendUrl ?? defaultUrl,
     (value) => (isHttpUrl(value) ? undefined : 'Please enter a full URL, e.g. https://example.com'),
   );
   if (!url) {

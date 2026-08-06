@@ -18,6 +18,7 @@
   ],
   "scripts": {
     "build": "tsup",
+    "build:cjs": "tsup --config tsup.cjs.config.ts",
     "dev": "tsx src/index.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
