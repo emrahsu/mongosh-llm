@@ -11,7 +11,7 @@ export interface Prompts {
   close(): void;
 }
 
-function createPrompts(): Prompts {
+export function createPrompts(): Prompts {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   return {
     ask: (question) => rl.question(question),
@@ -64,7 +64,7 @@ export async function runOnboarding(prompts: Prompts = createPrompts()): Promise
   }
 }
 
-async function setupBackend(prompts: Prompts, existing: StoredConfig): Promise<StoredConfig | undefined> {
+export async function setupBackend(prompts: Prompts, existing: StoredConfig): Promise<StoredConfig | undefined> {
   // A distribution can bake in its own backend URL so operators only supply an access key. Kept
   // separate from BACKEND_URL (which loadConfig reads) so a baked-in default can't make config look
   // complete when the access key is still missing - that would skip setup and 401 on first query.
@@ -103,7 +103,7 @@ async function setupBackend(prompts: Prompts, existing: StoredConfig): Promise<S
   };
 }
 
-async function setupAnthropic(prompts: Prompts, existing: StoredConfig): Promise<StoredConfig | undefined> {
+export async function setupAnthropic(prompts: Prompts, existing: StoredConfig): Promise<StoredConfig | undefined> {
   const key = await askRequired(prompts, '\n  Anthropic API key', existing.anthropicApiKey, () => undefined, true);
   if (!key) {
     return undefined;
@@ -115,7 +115,7 @@ async function setupAnthropic(prompts: Prompts, existing: StoredConfig): Promise
   return { executionMode: 'local', llmProvider: 'anthropic', anthropicApiKey: key, mongodbUri: uri, queryMode: 'safe' };
 }
 
-async function setupOllama(prompts: Prompts, existing: StoredConfig): Promise<StoredConfig | undefined> {
+export async function setupOllama(prompts: Prompts, existing: StoredConfig): Promise<StoredConfig | undefined> {
   const url =
     (await prompts.ask(chalk.green(`\n  Ollama URL [${existing.ollamaBaseUrl ?? DEFAULT_OLLAMA_BASE_URL}] > `))).trim() ||
     existing.ollamaBaseUrl ||

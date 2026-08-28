@@ -9,6 +9,7 @@ import type { QueryExecutor } from './executor/types.js';
 import { MongoshNotFoundError } from './mongosh/client.js';
 import { confirmWriteOperation } from './prompt.js';
 import { printBanner, printError, printInfo, printPaginated } from './display.js';
+import { printActiveConfig, setActiveConfig } from './config-command.js';
 
 function describeProvider(config: AppConfig): string {
   if (config.llmProvider) {
@@ -85,6 +86,19 @@ export async function startRepl(
       printHelp();
       continue;
     }
+    if (input === '--config') {
+      printActiveConfig();
+      continue;
+    }
+    if (input.startsWith('--setConfig')) {
+      const choice = input.slice('--setConfig'.length).trim();
+      // Shares this REPL's own readline interface instead of opening a second one on the same
+      // stdin; `close` is a no-op since the REPL loop still needs it after this returns.
+      if (await setActiveConfig(choice, { ask, close: () => undefined })) {
+        printInfo('Restart mongosh-llm for the new provider to take effect in this session.');
+      }
+      continue;
+    }
     if (input.startsWith('--exec ')) {
       await executeAndDisplay(input.slice('--exec '.length).trim(), config, executor, ask);
       continue;
@@ -151,9 +165,11 @@ function truncateForHistory(text: string, maxLength = 2000): string {
 function printHelp(): void {
   console.log(`
 Commands:
-  <question>        Ask a natural language question about your data
-  --exec <query>     Run a mongosh command directly, skipping the LLM
-  --clear            Clear conversation history
-  exit / quit        Exit
+  <question>          Ask a natural language question about your data
+  --exec <query>       Run a mongosh command directly, skipping the LLM
+  --clear              Clear conversation history
+  --config             Show which LLM provider is currently active
+  --setConfig <1|2|3>  Switch provider: 1=Ollama, 2=Self Hosted Backend, 3=Anthropic Key
+  exit / quit          Exit
 `);
 }
