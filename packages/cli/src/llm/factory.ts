@@ -8,8 +8,12 @@ import { OllamaLlmClient } from './ollama-client.js';
  * inferring from which config values are set (Anthropic key > backend URL > Ollama URL), which
  * keeps old configs working unchanged now that a third provider exists.
  */
+export function resolveProvider(config: AppConfig): LlmProvider {
+  return config.llmProvider ?? inferProvider(config);
+}
+
 export function createLlmClient(config: AppConfig): LlmClient {
-  const provider = config.llmProvider ?? inferProvider(config);
+  const provider = resolveProvider(config);
 
   switch (provider) {
     case 'anthropic':
